@@ -1,12 +1,158 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+
+import { useState, useEffect } from "react";
+import { Event, EventFiltersState } from "@/lib/types";
+import { mockEvents } from "@/data/mockEvents";
+import EventCard from "@/components/EventCard";
+import EventFilters from "@/components/EventFilters";
+import EventDetailModal from "@/components/EventDetailModal";
+import EventForm from "@/components/EventForm";
 
 const Index = () => {
+  // State for events
+  const [events, setEvents] = useState<Event[]>(mockEvents);
+  const [filteredEvents, setFilteredEvents] = useState<Event[]>(mockEvents);
+  
+  // State for filters
+  const [filters, setFilters] = useState<EventFiltersState>({
+    search: "",
+    type: "all",
+    college: "All Colleges",
+    startDate: null,
+    endDate: null,
+    isVirtual: null,
+  });
+  
+  // State for selected event
+  const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Apply filters
+  useEffect(() => {
+    let result = [...events];
+    
+    // Filter by search term
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      result = result.filter(
+        (event) =>
+          event.title.toLowerCase().includes(searchTerm) ||
+          event.description.toLowerCase().includes(searchTerm) ||
+          event.college.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    // Filter by event type
+    if (filters.type && filters.type !== "all") {
+      result = result.filter((event) => event.type === filters.type);
+    }
+    
+    // Filter by college
+    if (filters.college && filters.college !== "All Colleges") {
+      result = result.filter((event) => event.college === filters.college);
+    }
+    
+    // Filter by start date
+    if (filters.startDate) {
+      const startDate = filters.startDate.getTime();
+      result = result.filter((event) => {
+        const eventDate = new Date(event.date).getTime();
+        return eventDate >= startDate;
+      });
+    }
+    
+    // Filter by virtual/in-person
+    if (filters.isVirtual !== null) {
+      result = result.filter((event) => event.isVirtual === filters.isVirtual);
+    }
+    
+    // Sort by date (closest first)
+    result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    
+    setFilteredEvents(result);
+  }, [events, filters]);
+
+  // Handle event selection
+  const handleEventClick = (event: Event) => {
+    setSelectedEvent(event);
+    setIsModalOpen(true);
+  };
+  
+  // Handle closing the modal
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+  
+  // Handle adding a new event
+  const handleAddEvent = (newEvent: Event) => {
+    setEvents((prevEvents) => [newEvent, ...prevEvents]);
+  };
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-gray-600">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+      <header className="bg-white dark:bg-gray-800 border-b">
+        <div className="page-container py-6">
+          <div className="flex justify-between items-center">
+            <div>
+              <h1 className="text-3xl font-bold text-primary">Event Horizon</h1>
+              <p className="text-muted-foreground">Discover college tech events in one place</p>
+            </div>
+            <EventForm onSubmit={handleAddEvent} />
+          </div>
+        </div>
+      </header>
+
+      <main className="page-container py-6">
+        <EventFilters 
+          filters={filters}
+          onFilterChange={setFilters}
+        />
+        
+        {filteredEvents.length > 0 ? (
+          <div className="mt-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+              {filteredEvents.map((event) => (
+                <EventCard
+                  key={event.id}
+                  event={event}
+                  onClick={handleEventClick}
+                />
+              ))}
+            </div>
+          </div>
+        ) : (
+          <div className="mt-12 flex flex-col items-center justify-center text-center">
+            <div className="rounded-full bg-muted p-6 mb-4">
+              <svg
+                className="w-10 h-10 text-muted-foreground"
+                fill="none"
+                height="24"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+                width="24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M16.5 9.4 7.55 4.24"></path>
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                <path d="M3.29 7 12 12l8.71-5"></path>
+                <path d="M12 22V12"></path>
+              </svg>
+            </div>
+            <h3 className="text-xl font-semibold mb-1">No events found</h3>
+            <p className="text-muted-foreground">
+              Try adjusting your filters or add a new event.
+            </p>
+          </div>
+        )}
+      </main>
+
+      <EventDetailModal
+        event={selectedEvent}
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+      />
     </div>
   );
 };

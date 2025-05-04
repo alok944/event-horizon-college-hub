@@ -1,73 +1,82 @@
-# Welcome to your Lovable project
 
-## Project info
+# Event Horizon - College Event Aggregator Platform
 
-**URL**: https://lovable.dev/projects/919fbf48-455e-41f0-bbde-ef7e7bcfdafc
+Event Horizon is a web application that aggregates tech-focused college events such as hackathons, workshops, tech talks, and career fairs from various universities into a single platform. This makes it easy for students to discover and participate in events across different colleges.
 
-## How can I edit this code?
+## Features
 
-There are several ways of editing your application.
+- **Event Dashboard**: Browse upcoming tech events from multiple colleges
+- **Advanced Filtering**: Filter events by type, college, date, and more
+- **Search Functionality**: Find events by keywords
+- **Event Submission**: Submit new events with detailed information
+- **Responsive Design**: Works on desktop and mobile devices
 
-**Use Lovable**
+## Tech Stack
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/919fbf48-455e-41f0-bbde-ef7e7bcfdafc) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
-
-**Edit a file directly in GitHub**
-
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
-
-**Use GitHub Codespaces**
-
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
 - React
-- shadcn-ui
+- TypeScript
 - Tailwind CSS
+- Shadcn/UI Components
+- React Hook Form with Zod validation
 
-## How can I deploy this project?
+## Getting Started
 
-Simply open [Lovable](https://lovable.dev/projects/919fbf48-455e-41f0-bbde-ef7e7bcfdafc) and click on Share -> Publish.
+### Prerequisites
 
-## Can I connect a custom domain to my Lovable project?
+- Node.js (v14 or above)
+- npm or yarn
 
-Yes, you can!
+### Installation
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+1. Clone the repository
+   ```
+   git clone <repository-url>
+   cd event-horizon
+   ```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+2. Install dependencies
+   ```
+   npm install
+   ```
+
+3. Start the development server
+   ```
+   npm run dev
+   ```
+
+4. Open your browser and navigate to `http://localhost:8080`
+
+## Project Structure
+
+- `src/components/`: Contains all React components
+- `src/data/`: Contains mock data for events
+- `src/pages/`: Contains page components
+- `src/lib/`: Contains utility functions and type definitions
+
+## Key Components
+
+1. **EventCard**: Displays individual event information in a card format
+2. **EventFilters**: Provides filtering options for events
+3. **EventForm**: Form for submitting new events
+4. **EventDetailModal**: Displays detailed information about an event
+
+## Mock Data
+
+The application currently uses mock data to simulate events from various colleges. In a production environment, this would be replaced with real data from college websites or APIs.
+
+## Future Enhancements
+
+- User authentication system
+- Ability to save/bookmark favorite events
+- Calendar view of events
+- Email notifications for upcoming events
+- Integration with actual college event APIs
+- Attendee RSVP functionality
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.
