@@ -1,14 +1,16 @@
 
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EventType } from "@/lib/types";
+import { ReactNode } from "react";
 
 interface EventTabsProps {
   activeTab: string;
   onTabChange: (value: string) => void;
   counts: Record<string, number>;
+  children?: ReactNode;
 }
 
-const EventTabs = ({ activeTab, onTabChange, counts }: EventTabsProps) => {
+const EventTabs = ({ activeTab, onTabChange, counts, children }: EventTabsProps) => {
   return (
     <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
       <TabsList className="w-full flex justify-between md:justify-start mb-4 bg-gray-100 dark:bg-gray-800 p-1">
@@ -43,6 +45,11 @@ const EventTabs = ({ activeTab, onTabChange, counts }: EventTabsProps) => {
           </span>
         </TabsTrigger>
       </TabsList>
+      
+      {/* Render content inside a TabsContent for each tab */}
+      <TabsContent value={activeTab} className="mt-0">
+        {children}
+      </TabsContent>
     </Tabs>
   );
 };

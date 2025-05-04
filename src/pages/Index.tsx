@@ -21,7 +21,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [showFilters, setShowFilters] = useState(true);
-  const [sortOption, setSortOption] = useState<"date-asc" | "date-desc" | "name-asc" | "name-desc">("date-asc");
+  const [sortOption, setSortOption] = useState<"date-asc" | "date-desc" | "name-asc" | "name-desc">("date-desc");
   
   // State for filters
   const [filters, setFilters] = useState<EventFiltersState>({
@@ -128,6 +128,55 @@ const Index = () => {
     setActiveTab(value);
   };
 
+  // Render event content
+  const renderEventContent = () => {
+    if (filteredEvents.length > 0) {
+      return (
+        <div className={`${viewMode === "grid" 
+          ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+          : "flex flex-col gap-4"}`}
+        >
+          {filteredEvents.map((event) => (
+            <EventCard
+              key={event.id}
+              event={event}
+              onClick={handleEventClick}
+              viewMode={viewMode}
+            />
+          ))}
+        </div>
+      );
+    } else {
+      return (
+        <div className="mt-8 flex flex-col items-center justify-center text-center">
+          <div className="rounded-full bg-muted p-6 mb-4">
+            <svg
+              className="w-10 h-10 text-muted-foreground"
+              fill="none"
+              height="24"
+              stroke="currentColor"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              width="24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M16.5 9.4 7.55 4.24"></path>
+              <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              <path d="M3.29 7 12 12l8.71-5"></path>
+              <path d="M12 22V12"></path>
+            </svg>
+          </div>
+          <h3 className="text-xl font-semibold mb-1">No events found</h3>
+          <p className="text-muted-foreground">
+            Try adjusting your filters or add a new event.
+          </p>
+        </div>
+      );
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 border-b">
@@ -148,89 +197,50 @@ const Index = () => {
           activeTab={activeTab} 
           onTabChange={handleTabChange} 
           counts={eventCounts} 
-        />
-        
-        {/* Controls */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
-          <div className="flex items-center gap-4 w-full sm:w-auto">
-            <Button 
-              variant="outline" 
-              onClick={() => setShowFilters(!showFilters)} 
-              className="flex gap-1 bg-background"
-            >
-              <ListFilter className="h-4 w-4" />
-              <span>{showFilters ? "Hide Filters" : "Show Filters"}</span>
-            </Button>
+        >
+          {/* Controls */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+            <div className="flex items-center gap-4 w-full sm:w-auto">
+              <Button 
+                variant="outline" 
+                onClick={() => setShowFilters(!showFilters)} 
+                className="flex gap-1 bg-background"
+              >
+                <ListFilter className="h-4 w-4" />
+                <span>{showFilters ? "Hide Filters" : "Show Filters"}</span>
+              </Button>
+              
+              <EventSorter value={sortOption} onChange={setSortOption} />
+            </div>
             
-            <EventSorter value={sortOption} onChange={setSortOption} />
+            <ToggleGroup 
+              type="single" 
+              value={viewMode} 
+              onValueChange={(value) => value && setViewMode(value as "grid" | "list")}
+              className="bg-background"
+            >
+              <ToggleGroupItem value="grid" aria-label="Grid view">
+                <LayoutGrid className="h-4 w-4" />
+              </ToggleGroupItem>
+              <ToggleGroupItem value="list" aria-label="List view">
+                <List className="h-4 w-4" />
+              </ToggleGroupItem>
+            </ToggleGroup>
           </div>
           
-          <ToggleGroup 
-            type="single" 
-            value={viewMode} 
-            onValueChange={(value) => value && setViewMode(value as "grid" | "list")}
-            className="bg-background"
-          >
-            <ToggleGroupItem value="grid" aria-label="Grid view">
-              <LayoutGrid className="h-4 w-4" />
-            </ToggleGroupItem>
-            <ToggleGroupItem value="list" aria-label="List view">
-              <List className="h-4 w-4" />
-            </ToggleGroupItem>
-          </ToggleGroup>
-        </div>
-        
-        {/* Filters */}
-        {showFilters && (
-          <EventFilters 
-            filters={filters}
-            onFilterChange={setFilters}
-          />
-        )}
-        
-        {filteredEvents.length > 0 ? (
+          {/* Filters */}
+          {showFilters && (
+            <EventFilters 
+              filters={filters}
+              onFilterChange={setFilters}
+            />
+          )}
+          
+          {/* Events List */}
           <div className="mt-8">
-            <div className={`${viewMode === "grid" 
-              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
-              : "flex flex-col gap-4"}`}
-            >
-              {filteredEvents.map((event) => (
-                <EventCard
-                  key={event.id}
-                  event={event}
-                  onClick={handleEventClick}
-                  viewMode={viewMode}
-                />
-              ))}
-            </div>
+            {renderEventContent()}
           </div>
-        ) : (
-          <div className="mt-12 flex flex-col items-center justify-center text-center">
-            <div className="rounded-full bg-muted p-6 mb-4">
-              <svg
-                className="w-10 h-10 text-muted-foreground"
-                fill="none"
-                height="24"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-                width="24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path d="M16.5 9.4 7.55 4.24"></path>
-                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                <path d="M3.29 7 12 12l8.71-5"></path>
-                <path d="M12 22V12"></path>
-              </svg>
-            </div>
-            <h3 className="text-xl font-semibold mb-1">No events found</h3>
-            <p className="text-muted-foreground">
-              Try adjusting your filters or add a new event.
-            </p>
-          </div>
-        )}
+        </EventTabs>
       </main>
 
       <EventDetailModal
