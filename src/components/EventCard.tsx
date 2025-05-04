@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -9,12 +9,13 @@ import { format, parseISO } from "date-fns";
 
 interface EventCardProps {
   event: Event;
-  onClick: (event: Event) => void;
+  onClick?: (event: Event) => void;
   viewMode?: "grid" | "list";
 }
 
 const EventCard = ({ event, onClick, viewMode = "grid" }: EventCardProps) => {
   const [isImageError, setIsImageError] = useState(false);
+  const navigate = useNavigate();
 
   const formatDate = (dateString: string) => {
     const date = parseISO(dateString);
@@ -41,6 +42,16 @@ const EventCard = ({ event, onClick, viewMode = "grid" }: EventCardProps) => {
       other: "bg-gray-500 hover:bg-gray-600"
     };
     return colorMap[type] || "bg-gray-500 hover:bg-gray-600";
+  };
+
+  const handleViewDetails = () => {
+    if (onClick) {
+      // If onClick handler is provided, use it (for modal behavior)
+      onClick(event);
+    } else {
+      // Otherwise, navigate to the event detail page
+      navigate(`/event/${event.id}`);
+    }
   };
 
   if (viewMode === "list") {
@@ -89,7 +100,7 @@ const EventCard = ({ event, onClick, viewMode = "grid" }: EventCardProps) => {
             
             <Button 
               className="w-full sm:w-auto sm:self-end" 
-              onClick={() => onClick(event)}
+              onClick={handleViewDetails}
             >
               View Details
             </Button>
@@ -147,7 +158,7 @@ const EventCard = ({ event, onClick, viewMode = "grid" }: EventCardProps) => {
       <CardFooter className="pt-0">
         <Button 
           className="w-full" 
-          onClick={() => onClick(event)}
+          onClick={handleViewDetails}
           variant="default"
         >
           View Details

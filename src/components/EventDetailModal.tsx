@@ -79,7 +79,7 @@ const EventDetailModal = ({ event, isOpen, onClose }: EventDetailModalProps) => 
           </div>
         )}
         
-        <DialogDescription className="mb-4 space-y-4">
+        <div className="mb-4 space-y-4">
           <p className="whitespace-pre-line text-foreground">{event.description}</p>
           
           <div className="space-y-2 mt-4">
@@ -106,7 +106,7 @@ const EventDetailModal = ({ event, isOpen, onClose }: EventDetailModalProps) => 
               </div>
             </div>
           </div>
-        </DialogDescription>
+        </div>
 
         <DialogFooter className="sm:justify-between gap-2">
           <Button variant="outline" onClick={onClose}>
