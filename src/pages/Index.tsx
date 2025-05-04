@@ -6,11 +6,22 @@ import EventCard from "@/components/EventCard";
 import EventFilters from "@/components/EventFilters";
 import EventDetailModal from "@/components/EventDetailModal";
 import EventForm from "@/components/EventForm";
+import EventTabs from "@/components/EventTabs";
+import EventSorter from "@/components/EventSorter";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Button } from "@/components/ui/button";
+import { ListFilter, LayoutGrid, List } from "lucide-react";
 
 const Index = () => {
   // State for events
   const [events, setEvents] = useState<Event[]>(mockEvents);
   const [filteredEvents, setFilteredEvents] = useState<Event[]>(mockEvents);
+  
+  // State for tabs and filters
+  const [activeTab, setActiveTab] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
+  const [showFilters, setShowFilters] = useState(true);
+  const [sortOption, setSortOption] = useState<"date-asc" | "date-desc" | "name-asc" | "name-desc">("date-asc");
   
   // State for filters
   const [filters, setFilters] = useState<EventFiltersState>({
@@ -26,7 +37,15 @@ const Index = () => {
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Apply filters
+  // Update filter type when tab changes
+  useEffect(() => {
+    setFilters(prev => ({
+      ...prev,
+      type: activeTab as any
+    }));
+  }, [activeTab]);
+
+  // Apply filters and sorting
   useEffect(() => {
     let result = [...events];
     
@@ -65,11 +84,28 @@ const Index = () => {
       result = result.filter((event) => event.isVirtual === filters.isVirtual);
     }
     
-    // Sort by date (closest first)
-    result.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+    // Apply sorting
+    result.sort((a, b) => {
+      if (sortOption === "date-asc") {
+        return new Date(a.date).getTime() - new Date(b.date).getTime();
+      } else if (sortOption === "date-desc") {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      } else if (sortOption === "name-asc") {
+        return a.title.localeCompare(b.title);
+      } else {
+        return b.title.localeCompare(a.title);
+      }
+    });
     
     setFilteredEvents(result);
-  }, [events, filters]);
+  }, [events, filters, sortOption]);
+
+  // Calculate event counts for each category
+  const eventCounts = events.reduce((counts: Record<string, number>, event) => {
+    counts.all = (counts.all || 0) + 1;
+    counts[event.type] = (counts[event.type] || 0) + 1;
+    return counts;
+  }, {});
 
   // Handle event selection
   const handleEventClick = (event: Event) => {
@@ -87,6 +123,11 @@ const Index = () => {
     setEvents((prevEvents) => [newEvent, ...prevEvents]);
   };
 
+  // Handle tab change
+  const handleTabChange = (value: string) => {
+    setActiveTab(value);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
       <header className="bg-white dark:bg-gray-800 border-b">
@@ -102,19 +143,63 @@ const Index = () => {
       </header>
 
       <main className="page-container py-6">
-        <EventFilters 
-          filters={filters}
-          onFilterChange={setFilters}
+        {/* Tabs */}
+        <EventTabs 
+          activeTab={activeTab} 
+          onTabChange={handleTabChange} 
+          counts={eventCounts} 
         />
+        
+        {/* Controls */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <Button 
+              variant="outline" 
+              onClick={() => setShowFilters(!showFilters)} 
+              className="flex gap-1 bg-background"
+            >
+              <ListFilter className="h-4 w-4" />
+              <span>{showFilters ? "Hide Filters" : "Show Filters"}</span>
+            </Button>
+            
+            <EventSorter value={sortOption} onChange={setSortOption} />
+          </div>
+          
+          <ToggleGroup 
+            type="single" 
+            value={viewMode} 
+            onValueChange={(value) => value && setViewMode(value as "grid" | "list")}
+            className="bg-background"
+          >
+            <ToggleGroupItem value="grid" aria-label="Grid view">
+              <LayoutGrid className="h-4 w-4" />
+            </ToggleGroupItem>
+            <ToggleGroupItem value="list" aria-label="List view">
+              <List className="h-4 w-4" />
+            </ToggleGroupItem>
+          </ToggleGroup>
+        </div>
+        
+        {/* Filters */}
+        {showFilters && (
+          <EventFilters 
+            filters={filters}
+            onFilterChange={setFilters}
+          />
+        )}
         
         {filteredEvents.length > 0 ? (
           <div className="mt-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div className={`${viewMode === "grid" 
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" 
+              : "flex flex-col gap-4"}`}
+            >
               {filteredEvents.map((event) => (
                 <EventCard
                   key={event.id}
                   event={event}
                   onClick={handleEventClick}
+                  viewMode={viewMode}
                 />
               ))}
             </div>

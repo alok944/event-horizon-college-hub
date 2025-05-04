@@ -10,9 +10,10 @@ import { format, parseISO } from "date-fns";
 interface EventCardProps {
   event: Event;
   onClick: (event: Event) => void;
+  viewMode?: "grid" | "list";
 }
 
-const EventCard = ({ event, onClick }: EventCardProps) => {
+const EventCard = ({ event, onClick, viewMode = "grid" }: EventCardProps) => {
   const [isImageError, setIsImageError] = useState(false);
 
   const formatDate = (dateString: string) => {
@@ -41,6 +42,62 @@ const EventCard = ({ event, onClick }: EventCardProps) => {
     };
     return colorMap[type] || "bg-gray-500 hover:bg-gray-600";
   };
+
+  if (viewMode === "list") {
+    return (
+      <Card className="event-card overflow-hidden hover:shadow-md transition-all">
+        <div className="flex flex-col md:flex-row">
+          <div className="w-full md:w-48 h-48 md:h-auto flex-shrink-0">
+            {isImageError ? (
+              <div className="h-full w-full bg-muted flex items-center justify-center">
+                <span className="text-muted-foreground">No image</span>
+              </div>
+            ) : (
+              <img
+                src={event.image || "/placeholder.svg"}
+                alt={event.title}
+                className="w-full h-full object-cover"
+                onError={() => setIsImageError(true)}
+              />
+            )}
+          </div>
+          
+          <div className="flex flex-col flex-grow p-4">
+            <div className="flex justify-between items-start mb-2">
+              <div>
+                <h3 className="text-lg font-bold">{event.title}</h3>
+                <p className="text-sm text-muted-foreground">{event.college}</p>
+              </div>
+              <Badge className={`${getBadgeColor(event.type)}`}>
+                {getEventTypeLabel(event.type)}
+              </Badge>
+            </div>
+            
+            <p className="text-sm line-clamp-2 mb-4">{event.description}</p>
+            
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-6 mt-auto mb-4">
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="h-4 w-4" />
+                <span>{formatDate(event.date)}</span>
+              </div>
+              
+              <div className="flex items-center gap-2 text-sm">
+                <MapPin className="h-4 w-4" />
+                <span>{event.isVirtual ? "Virtual Event" : event.location}</span>
+              </div>
+            </div>
+            
+            <Button 
+              className="w-full sm:w-auto sm:self-end" 
+              onClick={() => onClick(event)}
+            >
+              View Details
+            </Button>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="event-card overflow-hidden h-full flex flex-col">
